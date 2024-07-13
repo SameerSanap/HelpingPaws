@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "492610552949",
+    "project_id": "helpingpaws-24efa",
+    "storage_bucket": "helpingpaws-24efa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492610552949:android:a70572c347f85c9045a43c",
+        "android_client_info": {
+          "package_name": "com.helpingpaws.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0Z8-HuZpubABRRai63xRDBw3MwsUqZXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
