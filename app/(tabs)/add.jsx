@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "../../components/FormField";
 import icons from "../../constants/icons";
 import Button from "../../components/Button";
-import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker"; // Import ImagePicker
 import { useAuth } from "../../context/authContext";
 import { router } from "expo-router";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -37,13 +38,24 @@ export default function Create() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState(initialState);
 
+  // Request media library permissions on component mount
+  useEffect(() => {
+    (async () => {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission to access media library needed.");
+      }
+    })();
+  }, []);
+
   const openPicker = async (type) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       aspect: [4, 3],
       quality: 0.7,
     });
-    if (!result.canceled) {
+    if (!result.cancelled) {
       if (type === "pet") {
         setForm({ ...form, petImage: result.assets[0] });
       } else if (type === "owner") {
@@ -275,6 +287,7 @@ export default function Create() {
           disable={isSubmitting}
         />
       </ScrollView>
+      <StatusBar style="light" />
     </SafeAreaView>
   );
 }

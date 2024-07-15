@@ -1,23 +1,23 @@
+import { router, usePathname } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { addDoc, collection } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { router, usePathname } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import icons from "../../constants/icons";
 import Button from "../../components/Button";
-import { getPost, deletePostAndImages, getUser } from "../../lib/database";
+import icons from "../../constants/icons";
 import { useAuth } from "../../context/authContext";
-import { doc, setDoc, collection } from "firebase/firestore"; // Add 'doc' and 'updateDoc'
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../../firebaseConfig";
+import { deletePostAndImages, getPost, getUser } from "../../lib/database";
 
 export default function PetInfo() {
   const pathname = usePathname();
@@ -80,7 +80,7 @@ export default function PetInfo() {
   useEffect(() => {
     async function getData() {
       try {
-        const res = await getUser(user.uid);
+        const res = await getUser(user?.uid);
         setAdopter(res);
       } catch (error) {
         console.log(error);
@@ -90,17 +90,33 @@ export default function PetInfo() {
       }
     }
     getData();
-  }, [user.uid]);
+  }, [user?.uid]);
 
   const uploadImage = async (uri) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    try {
+      console.log("Starting image upload...");
+      console.log("URI:", uri);
 
-    const filename = uri.substring(uri.lastIndexOf("/") + 1);
-    const storageRef = ref(storage, `adopted/${filename}`);
-    await uploadBytes(storageRef, blob);
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error("Failed to fetch image");
+      }
 
-    return await getDownloadURL(storageRef);
+      const blob = await response.blob();
+      console.log("Image converted to blob");
+
+      const filename = uri.substring(uri.lastIndexOf("/") + 1);
+      const storageRef = ref(storage, `adopted/${filename}`);
+      await uploadBytes(storageRef, blob);
+      console.log("Image uploaded to Firebase Storage");
+
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log("Image uploaded successfully. URL:", downloadURL);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
   };
 
   const handleAdopt = async () => {
@@ -117,36 +133,45 @@ export default function PetInfo() {
             text: "Adopt",
             style: "destructive",
             onPress: async () => {
-              setLoading(true);
+              try {
+                setLoading(true);
+                console.log("Adopt process started");
 
-              // Upload new pet image and get its URL
-              const newPetImageUrl = detail.petImage
-                ? await uploadImage(detail.petImage.uri)
-                : null;
+                // Upload new pet image and get its URL
+                const newPetImageUrl = detail.petImage
+                  ? await uploadImage(detail.petImage.uri)
+                  : null;
 
-              const adoptedPetData = {
-                ...detail,
-                petImageUrl: newPetImageUrl,
-                adopter: adopter.username,
-              };
+                console.log("New pet image URL:", newPetImageUrl);
 
-              // Set the document in the "adopted" collection
-              const adoptedDocRef = doc(collection(db, "adopted"), id);
-              await setDoc(adoptedDocRef, adoptedPetData);
+                const adoptedPetData = {
+                  ...detail,
+                  petImageUrl: newPetImageUrl,
+                  adopter: adopter.username,
+                };
 
-              Alert.alert("Success", "Adopted!");
+                // Set the document in the "adopted" collection
+                await addDoc(collection(db, "adopted"), adoptedPetData);
+                console.log("Adopted pet data saved to Firestore");
 
-              // Delete the original post and images
-              await deletePostAndImages(id, ownerUri, petUri);
-              setLoading(false);
+                Alert.alert("Success", "Adopted!");
 
-              router.push("/home");
+                // Delete the original post and image
+                // await deletePostAndImages(id, ownerUri, petUri);
+                console.log("Original post and images deleted");
+                setLoading(false);
+
+                router.push("/home");
+              } catch (error) {
+                console.error("Error adopting pet (inner catch):", error);
+                setLoading(false);
+              }
             },
           },
         ]
       );
     } catch (error) {
-      console.error("Error adopting pet: ", error);
+      console.error("Error adopting pet (outer catch):", error);
       setLoading(false);
     }
   };

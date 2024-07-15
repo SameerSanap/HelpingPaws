@@ -21,3 +21,5 @@ expo-env.d.ts
 
 # secret
 .env
+# .gitignore
+.env*

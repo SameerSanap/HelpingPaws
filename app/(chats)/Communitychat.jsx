@@ -47,7 +47,7 @@ export default function CommunityChat() {
       await addDoc(collection(db, "global"), {
         text: newMessage.trim(),
         createdAt: new Date(),
-        userId: user.uid,
+        userId: user?.uid,
         userName: currentUser ? currentUser.username : "User",
       });
       setNewMessage("");

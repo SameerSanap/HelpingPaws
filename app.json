@@ -20,7 +20,8 @@
         "foregroundImage": "assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.helpingpaws.app"
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +40,13 @@
       },
       "eas": {
         "projectId": "012583ee-55f2-4dc9-8c6c-17f3628b7bd0"
-      }
+      },
+      "EXPO_PUBLIC_API_KEY": "AIzaSyDqPIRZP-nm2t0wOBEEVQc7HyINRXkj1gs",
+      "EXPO_PUBLIC_AUTH_DOMAIN": "helpingpaws-c20d0.firebaseapp.com",
+      "EXPO_PUBLIC_PROJECT_ID": "helpingpaws-c20d0",
+      "EXPO_PUBLIC_STORAGE_BUCKET": "helpingpaws-c20d0.appspot.com",
+      "EXPO_PUBLIC_MESSAGING_SENDER_ID": "792234144555",
+      "EXPO_PUBLIC_APP_ID": "1:792234144555:web:c109e267b7481b4b42919b"
     }
   }
 }
